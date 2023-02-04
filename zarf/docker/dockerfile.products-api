@@ -1,0 +1,24 @@
+FROM golang:1.19 as builder
+ARG VCS_REF # the short id of the latest commit this image was built upon
+
+WORKDIR /service
+
+COPY go.mod .
+COPY go.mod .
+
+
+RUN go mod download
+
+COPY . .
+
+WORKDIR /service/app/services/products-api
+
+RUN go build -ldflags "-X main.build=${VCS_REF}" -o /bin/service .
+
+FROM alpine:3.14
+ARG BUILD_DATE
+ARG BUILD_REF
+
+COPY --from=builder /bin/service /bin/service
+WORKDIR /bin
+CMD ["./service"]
