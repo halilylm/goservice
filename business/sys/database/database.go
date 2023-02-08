@@ -53,7 +53,6 @@ func StatusCheck(ctx context.Context, db *sqlx.DB) error {
 			return ctx.Err()
 		case <-ticker.C:
 			ticker.Reset(time.Duration(i) * 100 * time.Millisecond)
-			continue
 		}
 	}
 }
