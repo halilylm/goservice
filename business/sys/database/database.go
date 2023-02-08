@@ -2,10 +2,12 @@
 package database
 
 import (
+	"context"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"net/url"
+	"time"
 )
 
 type Config struct {
@@ -38,4 +40,20 @@ func Open(cfg Config) (*sqlx.DB, error) {
 		return nil, fmt.Errorf("connecting: %w", err)
 	}
 	return conn, nil
+}
+
+func StatusCheck(ctx context.Context, db *sqlx.DB) error {
+	ticker := time.NewTicker(100 * time.Millisecond)
+	for i := 1; ; i++ {
+		if err := db.Ping(); err == nil {
+			return nil
+		}
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-ticker.C:
+			ticker.Reset(time.Duration(i) * 100 * time.Millisecond)
+			continue
+		}
+	}
 }

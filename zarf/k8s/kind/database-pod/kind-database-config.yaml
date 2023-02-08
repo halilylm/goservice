@@ -4,4 +4,4 @@ metadata:
   name: app-config
   namespace: database-system
 data:
-  db_password: postgres
+  db_password: secret

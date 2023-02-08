@@ -62,3 +62,6 @@ kind-start-over: kind-down kind-up docker-products-api kind-load kind-apply
 test:
 	go test ./... -count=1
 	staticcheck -checks=all ./...
+
+migrate:
+	go run app/tooling/main.go migrate

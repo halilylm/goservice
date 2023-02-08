@@ -104,7 +104,7 @@ func initLogger(service string) (*zap.SugaredLogger, error) {
 	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	config.DisableStacktrace = true
 	config.InitialFields = map[string]any{
-		"service": "products-api",
+		"service": service,
 	}
 	log, err := config.Build()
 	if err != nil {
