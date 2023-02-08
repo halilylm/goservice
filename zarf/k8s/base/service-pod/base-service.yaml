@@ -23,4 +23,60 @@ spec:
       containers:
         - name: service-api
           image: service-api-amd64:1.0
-          imagePullPolicy: "Always"
+          ports:
+            - name: product-api
+              containerPort: 3000
+            - name: product-api-dbg
+              containerPort: 4000
+          readinessProbe:
+            httpGet:
+              path: /debug/readiness
+              port: 4000
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 2
+          livenessProbe:
+            httpGet:
+              path: /debug/liveness
+              port: 4000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 2
+          env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: KUBERNETES_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: KUBERNETES_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: KUBERNETES_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: service-system
+spec:
+  type: ClusterIP
+  selector:
+    app: service
+  ports:
+    - name: product-api
+      port: 3000
+      targetPort: product-api
+    - name: product-api-dbg
+      port: 4000
+      targetPort: product-api-dbg

@@ -1,11 +1,10 @@
 FROM golang:1.19 as builder
-ARG VCS_REF # the short id of the latest commit this image was built upon
-
+ARG VCS_REF
+ENV CGO_ENABLED 0
 WORKDIR /service
 
 COPY go.mod .
 COPY go.mod .
-
 
 RUN go mod download
 
@@ -21,4 +20,6 @@ ARG BUILD_REF
 
 COPY --from=builder /bin/service /bin/service
 WORKDIR /bin
+
+RUN ls -al
 CMD ["./service"]
